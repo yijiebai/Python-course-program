@@ -1,2 +1,2 @@
-# Python-course-program
+# Python
 This is my Python course program
