@@ -1,0 +1,27 @@
+vstoxx_futures = pd.read_excel('./source/vstoxx_march_2014.xlsx',
+                               'vstoxx_futures')
+
+vstoxx_futures.info()
+
+columns = ['DATE', 'EXP_YEAR', 'EXP_MONTH', 'PRICE']
+vstoxx_futures.columns = columns
+
+import datetime as dt
+import calendar
+
+def third_friday(date):
+    day = 21 - (calendar.weekday(date.year, date.month, 1) + 2) % 7
+    return dt.datetime(date.year, date.month, day)
+
+set(vstoxx_futures['EXP_MONTH'])
+
+third_fridays = {}
+for month in set(vstoxx_futures['EXP_MONTH']):
+    third_fridays[month] = third_friday(dt.datetime(2014, month, 1))
+    
+third_fridays
+
+tf = lambda x: third_fridays[x]
+vstoxx_futures['MATURITY'] = vstoxx_futures['EXP_MONTH'].apply(tf)
+
+vstoxx_futures.tail()
