@@ -1,0 +1,13 @@
+val_env = market_environment('val_env', pricing_date)
+val_env.add_constant('starting_date', pricing_date)
+val_env.add_constant('final_date', pricing_date)
+  # temporary value, is updated during valuation
+val_env.add_curve('discount_curve', csr)
+val_env.add_constant('frequency', 'B')
+val_env.add_constant('paths', 25000)
+underlyings = {'vstoxx_model' : me_vstoxx}
+portfolio = derivatives_portfolio('portfolio', option_positions,
+                                  val_env, underlyings)
+%time results = portfolio.get_statistics(fixed_seed=True)
+results.sort_values(by='name')
+results[['pos_value','pos_delta','pos_vega']].sum()
