@@ -1,0 +1,9 @@
+from pylab import plt
+plt.style.use('seaborn')
+import matplotlib as mpl
+mpl.rcParams['font.family'] = 'serif'
+import sys
+sys.path.append('../python36/')
+sys.path.append('../python36/dxa')
+import numpy as np
+import pandas as pd
