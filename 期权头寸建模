@@ -1,0 +1,29 @@
+me_vstoxx = market_environment('me_vstoxx', pricing_date)
+me_vstoxx.add_constant('initial_value', initial_value)
+me_vstoxx.add_constant('final_date', pricing_date)
+me_vstoxx.add_constant('currency', 'NONE')
+me_vstoxx.add_constant('kappa', opt_local[0])
+me_vstoxx.add_constant('theta', opt_local[1])
+me_vstoxx.add_constant('volatility', opt_local[2])
+me_vstoxx.add_constant('model', 'srd')
+payoff_func = 'np.maximum(strike - instrument_values, 0)'
+
+shared = market_environment('share', pricing_date)
+shared.add_constant('maturity', maturity)
+shared.add_constant('currency', 'EUR')
+option_positions = {}
+option_environments = {}
+for option in option_selection.index:
+    option_environments[option] = \
+        market_environment('am_put_%d' % option, pricing_date)
+    strike = option_selection['STRIKE'].loc[option]
+    option_environments[option].add_constant('strike', strike)
+    option_environments[option].add_environment(shared)
+    option_positions['am_put_%d' % strike] = \
+                    derivatives_position(
+                        'am_put_%d' % strike,
+                        quantity=100.,
+                        underlying='vstoxx_model',
+                        mar_env=option_environments[option],
+                        otype='American',
+                        payoff_func=payoff_func)
