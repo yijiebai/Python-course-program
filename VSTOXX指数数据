@@ -1,0 +1,18 @@
+sys.path.append('../python36/')
+sys.path.append('../python36/dxa')
+url = 'http://www.stoxx.com/download/historical_values/h_vstoxx.txt'
+vstoxx_index = pd.read_csv(url, index_col=0, header=2,
+                           parse_dates=True, dayfirst=True,
+                           sep=',')
+
+vstoxx_index.info()
+
+vstoxx_index = vstoxx_index[('2013/12/31' < vstoxx_index.index)
+                            & (vstoxx_index.index < '2014/4/1')]
+
+np.round(vstoxx_index.tail(), 2)
+
+vstoxx_futures = pd.read_excel('./source/vstoxx_march_2014.xlsx',
+                               'vstoxx_futures')
+
+vstoxx_futures.info()
