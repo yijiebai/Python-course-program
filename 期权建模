@@ -1,0 +1,60 @@
+from dxa import *
+me_vstoxx = market_environment('me_vstoxx', pricing_date)
+me_vstoxx.add_constant('initial_value', initial_value)
+me_vstoxx.add_constant('final_date', maturity)
+me_vstoxx.add_constant('currency', 'EUR')
+me_vstoxx.add_constant('frequency', 'B')
+me_vstoxx.add_constant('paths', 10000)
+csr = constant_short_rate('csr', 0.01)
+me_vstoxx.add_curve('discount_curve', csr)
+
+me_vstoxx.add_constant('kappa', 1.0)
+me_vstoxx.add_constant('theta', 1.2 * initial_value)
+vol_est =  vstoxx_index['V2TX'].std() \
+            * np.sqrt(len(vstoxx_index['V2TX']) / 252.)
+me_vstoxx.add_constant('volatility', vol_est)
+
+
+vol_est
+
+vstoxx_model = square_root_diffusion('vstoxx_model', me_vstoxx)
+me_vstoxx.add_constant('strike', forward)
+me_vstoxx.add_constant('maturity', maturity)
+payoff_func = 'np.maximum(maturity_value - strike, 0)'
+vstoxx_eur_call = valuation_mcs_european('vstoxx_eur_call',
+                        vstoxx_model, me_vstoxx, payoff_func)
+vstoxx_eur_call.present_value()
+
+option_models = {}
+for option in option_selection.index:
+    strike = option_selection['STRIKE'].loc[option]
+    me_vstoxx.add_constant('strike', strike)
+    option_models[option] = \
+                        valuation_mcs_european(
+                                'eur_call_%d' % strike,
+                                vstoxx_model,
+                                me_vstoxx,
+                                payoff_func)
+def calculate_model_values(p0):
+    ''' Returns all relevant option values.
+    
+    Parameters
+    ===========
+    p0 : tuple/list
+        tuple of kappa, theta, volatility
+    
+    Returns
+    =======
+    model_values : dict
+        dictionary with model values
+    '''
+    kappa, theta, volatility = p0
+    vstoxx_model.update(kappa=kappa,
+                        theta=theta,
+                        volatility=volatility)
+    model_values = {}
+    for option in option_models:
+       model_values[option] = \
+         option_models[option].present_value(fixed_seed=True)
+    return model_values
+calculate_model_values((0.5, 27.5, vol_est))
