@@ -1,0 +1,15 @@
+pricing_date = dt.datetime(2014, 3, 31)
+maturity = third_fridays[10]
+initial_value = vstoxx_index['V2TX'][pricing_date]
+forward = vstoxx_futures[(vstoxx_futures.DATE == pricing_date)
+            & (vstoxx_futures.MATURITY == maturity)]['PRICE'].values[0]
+           
+tol = 0.20
+option_selection = \
+    vstoxx_options[(vstoxx_options.DATE == pricing_date)
+                 & (vstoxx_options.MATURITY == maturity)
+                 & (vstoxx_options.TYPE == 'C')
+                 & (vstoxx_options.STRIKE > (1 - tol) * forward)
+                 & (vstoxx_options.STRIKE < (1 + tol) * forward)]
+                 
+option_selection
