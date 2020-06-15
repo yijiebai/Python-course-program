@@ -1,0 +1,22 @@
+vstoxx_options = pd.read_excel('./source/vstoxx_march_2014.xlsx',
+                               'vstoxx_options')
+vstoxx_options.info()
+del vstoxx_options['A_SETTLEMENT_PRICE_SCALED']
+del vstoxx_options['A_PRODUCT_ID']
+
+columns = ['DATE', 'EXP_YEAR', 'EXP_MONTH', 'TYPE', 'STRIKE', 'PRICE']
+vstoxx_options.columns = columns
+
+vstoxx_options['MATURITY'] = vstoxx_options['EXP_MONTH'].apply(tf)
+vstoxx_options.head()
+vstoxx_options['STRIKE'] = vstoxx_options['STRIKE'] / 100.
+save = False
+if save is True:
+    import warnings
+    warnings.simplefilter('ignore')
+    h5 = pd.HDFStore('./source/vstoxx_march_2014.h5',
+                     complevel=9, complib='blosc')
+    h5['vstoxx_index'] = vstoxx_index
+    h5['vstoxx_futures'] = vstoxx_futures
+    h5['vstoxx_options'] = vstoxx_options
+    h5.close()
